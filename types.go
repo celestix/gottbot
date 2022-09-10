@@ -245,38 +245,38 @@ type ChatType = interface{}
 // ConstructedMessageBody defines model for ConstructedMessageBody.
 type ConstructedMessageBody struct {
 	// Attachments Message attachments. See `AttachmentRequest` and it's inheritors for full information
-	Attachments *[]AttachmentRequest `json:"attachments"`
+	Attachments []AttachmentRequest `json:"attachments,omitempty"`
 
 	// Format Message text format. If set,
 	Format *TextFormat `json:"format"`
 
 	// Markup Text markup
-	Markup *[]MarkupElement `json:"markup"`
+	Markup []MarkupElement `json:"markup,omitempty"`
 
 	// Text Message text
-	Text *string `json:"text"`
+	Text string `json:"text,omitempty"`
 }
 
 // ConstructorAnswer Bot's answer on construction request
 type ConstructorAnswer struct {
 	// AllowUserInput If `true` user can send any input manually. Otherwise, only keyboard will be shown
-	AllowUserInput *bool `json:"allow_user_input,omitempty"`
+	AllowUserInput bool `json:"allow_user_input,omitempty"`
 
 	// Data In this property you can store any additional data up to 8KB. We send this data back to bot within the
 	// next construction request. It is handy to store here any state of construction session
-	Data *string `json:"data,omitempty"`
+	Data string `json:"data,omitempty"`
 
 	// Hint Hint to user. Will be shown on top of keyboard
-	Hint *string `json:"hint"`
+	Hint string `json:"hint,omitempty"`
 
 	// Keyboard Keyboard to show to user in constructor mode
 	Keyboard *Keyboard `json:"keyboard"`
 
 	// Messages Array of prepared messages. This messages will be sent as user taps on "Send" button
-	Messages *[]ConstructedMessageBody `json:"messages,omitempty"`
+	Messages []ConstructedMessageBody `json:"messages,omitempty"`
 
 	// Placeholder Text to show over the text field
-	Placeholder *string `json:"placeholder"`
+	Placeholder string `json:"placeholder,omitempty"`
 }
 
 // GetPinnedMessageResult defines model for GetPinnedMessageResult.
@@ -389,7 +389,7 @@ type MessageStat struct {
 // NewMessageBody defines model for NewMessageBody.
 type NewMessageBody struct {
 	// Attachments Message attachments. See `AttachmentRequest` and it's inheritors for full information
-	Attachments *[]AttachmentRequest `json:"attachments"`
+	Attachments []AttachmentRequest `json:"attachments,omitempty"`
 
 	// Format If set, message text will be formated according to given markup
 	Format *TextFormat `json:"format"`
@@ -398,10 +398,10 @@ type NewMessageBody struct {
 	Link *NewMessageLink `json:"link"`
 
 	// Notify If false, chat participants would not be notified
-	Notify *bool `json:"notify,omitempty"`
+	Notify bool `json:"notify,omitempty"`
 
 	// Text Message text
-	Text *string `json:"text"`
+	Text string `json:"text,omitempty"`
 }
 
 // NewMessageLink defines model for NewMessageLink.
@@ -521,7 +521,7 @@ type Update struct {
 // UpdateList List of all updates in chats your bot participated in
 type UpdateList struct {
 	// Marker Pointer to the next data page
-	Marker *int64 `json:"marker"`
+	Marker int64 `json:"marker,omitempty"`
 
 	// Updates Page of updates
 	Updates []Update `json:"updates"`
@@ -709,19 +709,19 @@ type UnsubscribeParams struct {
 	Url string `form:"url" json:"url"`
 }
 
-// GetUpdatesParams defines parameters for GetUpdates.
-type GetUpdatesParams struct {
+// GetUpdatesOpts defines parameters for GetUpdates.
+type GetUpdatesOpts struct {
 	// Limit Maximum number of updates to be retrieved
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+	Limit int `form:"limit,omitempty" json:"limit,omitempty"`
 
 	// Timeout Timeout in seconds for long polling
-	Timeout *int `form:"timeout,omitempty" json:"timeout,omitempty"`
+	Timeout int `form:"timeout,omitempty" json:"timeout,omitempty"`
 
 	// Marker Pass `null` to get updates you didn't get yet
-	Marker *int64 `form:"marker,omitempty" json:"marker,omitempty"`
+	Marker int64 `form:"marker,omitempty" json:"marker,omitempty"`
 
 	// Types Comma separated list of update types your bot want to receive
-	Types *[]string `json:"types,omitempty"`
+	Types []string `json:"types,omitempty"`
 }
 
 // GetUploadUrlParams defines parameters for GetUploadUrl.

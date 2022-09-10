@@ -380,38 +380,51 @@ func (b *Bot) AnswerOnCallback(callbackId string, body CallbackAnswer) (*SimpleQ
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
-// func (b *Bot) later(patchInfo BotPatch) (*BotInfo, error) {
-// 	u := url.Values{}
-// 	if patchInfo.Name != "" {
-// 		u.Add("name", patchInfo.Name)
-// 	}
-// 	if patchInfo.Description != "" {
-// 		u.Add("description", patchInfo.Description)
-// 	}
-// 	if patchInfo.Username != "" {
-// 		u.Add("username", patchInfo.Username)
-// 	}
-// 	if patchInfo.Commands != nil {
-// 		bs, err := json.Marshal(patchInfo.Commands)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to encode 'photo' param: %w", err)
-// 		}
-// 		u.Add("commands", string(bs))
-// 	}
-// 	if patchInfo.Photo != nil {
-// 		bs, err := json.Marshal(patchInfo.Photo)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to encode 'photo' param: %w", err)
-// 		}
-// 		u.Add("photo", string(bs))
-// 	}
-// 	data, err := b.MakeRequest(http.MethodPatch, "me", u, nil)
-// 	if data != nil {
-// 		defer data.Close()
-// 	}
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var v BotInfo
-// 	return &v, json.NewDecoder(data).Decode(&v)
-// }
+func (b *Bot) ConstructMessage(sessionId string, body ConstructorAnswer) (*SimpleQueryResult, error) {
+	u := url.Values{}
+	u.Add("session_id", sessionId)
+	bs, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ConstructorAnswer: %w", err)
+	}
+	data, err := b.MakeRequest(http.MethodPost, "answers/constructor", u, bs)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v SimpleQueryResult
+	return &v, json.NewDecoder(data).Decode(&v)
+}
+
+func (b *Bot) GetUpdates(opts *GetUpdatesOpts) (*UpdateList, error) {
+	u := url.Values{}
+	if opts != nil {
+		if opts.Limit != 0 {
+			u.Add("limit", strconv.FormatInt(int64(opts.Limit), 10))
+		}
+		if opts.Marker != 0 {
+			u.Add("marker", strconv.FormatInt(opts.Marker, 10))
+		}
+		if opts.Timeout != 0 {
+			u.Add("timeout", strconv.FormatInt(int64(opts.Timeout), 10))
+		}
+		if opts.Types != nil {
+			bs, err := json.Marshal(opts.Types)
+			if err != nil {
+				return nil, fmt.Errorf("failed to encode GetUpdateOpts.Types: %w", err)
+			}
+			u.Add("types", string(bs))
+		}
+	}
+	data, err := b.MakeRequest(http.MethodGet, "updates", u, nil)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v UpdateList
+	return &v, json.NewDecoder(data).Decode(&v)
+}
