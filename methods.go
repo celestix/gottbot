@@ -281,17 +281,17 @@ func (b *Bot) GetMessages(opts *GetMessagesOpts) (*MessageList, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
-func (b *Bot) SendMessage(text string, opts *SendMessageOpts) (*SendMessageResult, error) {
+func (b *Bot) SendMessage(chatId int64, text string, opts *SendMessageOpts) (*SendMessageResult, error) {
 	if opts == nil {
 		opts = &SendMessageOpts{}
 	}
 	u := url.Values{}
-	if opts.ChatId != 0 {
-		u.Add("chat_id", strconv.FormatInt(opts.ChatId, 10))
+	if chatId != 0 {
+		u.Add("chat_id", strconv.FormatInt(chatId, 10))
 	}
-	if opts.UserId != 0 {
-		u.Add("from", strconv.FormatInt(opts.UserId, 10))
-	}
+	// if opts.UserId != 0 {
+	// 	u.Add("from", strconv.FormatInt(opts.UserId, 10))
+	// }
 	if opts.DisableLinkPreview {
 		u.Add("disable_link_preview", strconv.FormatBool(opts.DisableLinkPreview))
 	}

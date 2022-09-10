@@ -22,6 +22,24 @@ const (
 	Markdown TextFormat = "markdown"
 )
 
+const (
+	UpdateMessageCreated             UpdateType = "message_created"
+	UpdateMessageRemoved             UpdateType = "message_removed"
+	UpdateMessageCallback            UpdateType = "message_callback"
+	UpdateMessageEdited              UpdateType = "message_edited"
+	UpdateBotAdded                   UpdateType = "bot_added"
+	UpdateBotRemoved                 UpdateType = "bot_removed"
+	UpdateBotStarted                 UpdateType = "bot_started"
+	UpdateUserAdded                  UpdateType = "user_added"
+	UpdateUserRemoved                UpdateType = "user_removed"
+	UpdateChatTitleChanged           UpdateType = "chat_title_changed"
+	UpdateMessageConstructionRequest UpdateType = "message_construction_request"
+	UpdateMessageConstructed         UpdateType = "message_constructed"
+	UpdateMessageChatCreated         UpdateType = "message_chat_created"
+)
+
+type UpdateType string
+
 // ActionRequestBody defines model for ActionRequestBody.
 type ActionRequestBody struct {
 	// Action Different actions to send to chat members
@@ -100,6 +118,20 @@ type Button struct {
 	// Text Visible text of button
 	Text string `json:"text"`
 	Type string `json:"type"`
+}
+
+type Callback struct {
+	// Unix-time when user pressed the button
+	Timestamp int64 `json:"timestamp"`
+
+	// Current keyboard identifier
+	CallbackId string `json:"callback_id"`
+
+	// Button payload
+	Payload string `json:"payload,omitempty"`
+
+	// User pressed the button
+	User *User `json:"user,omitempty"`
 }
 
 // CallbackAnswer Send this object when your bot wants to react to when a button is pressed
@@ -357,10 +389,10 @@ type Message struct {
 // MessageBody Schema representing body of message
 type MessageBody struct {
 	// Attachments Message attachments. Could be one of `Attachment` type. See description of this schema
-	Attachments *[]Attachment `json:"attachments"`
+	Attachments []Attachment `json:"attachments,omitempty"`
 
 	// Markup Message text markup. See [Formatting](#section/About/Text-formatting) section for more info
-	Markup *[]MarkupElement `json:"markup"`
+	Markup []MarkupElement `json:"markup,omitempty"`
 
 	// Mid Unique identifier of message
 	Mid string `json:"mid"`
@@ -369,7 +401,7 @@ type MessageBody struct {
 	Seq int64 `json:"seq"`
 
 	// Text Message text
-	Text *string `json:"text"`
+	Text string `json:"text,omitempty"`
 }
 
 // MessageLinkType Type of linked message
@@ -443,13 +475,13 @@ type PinMessageBody struct {
 // Recipient New message recipient. Could be user or chat
 type Recipient struct {
 	// ChatId Chat identifier
-	ChatId *int64 `json:"chat_id"`
+	ChatId int64 `json:"chat_id,omitempty"`
 
 	// ChatType Chat type
 	ChatType ChatType `json:"chat_type"`
 
 	// UserId User identifier, if message was sent to user
-	UserId *int64 `json:"user_id"`
+	UserId int64 `json:"user_id,omitempty"`
 }
 
 // SendMessageResult defines model for SendMessageResult.
@@ -514,8 +546,11 @@ type TextFormat string
 // Update `Update` object represents different types of events that happened in chat. See its inheritors
 type Update struct {
 	// Timestamp Unix-time when event has occurred
-	Timestamp  int64  `json:"timestamp"`
-	UpdateType string `json:"update_type"`
+	Timestamp  int64      `json:"timestamp"`
+	UpdateType UpdateType `json:"update_type"`
+	Callback   *Callback  `json:"callback"`
+	Message    *Message   `json:"message,omitempty"`
+	UserLocale string     `json:"user_locale,omitempty"`
 }
 
 // UpdateList List of all updates in chats your bot participated in
@@ -589,18 +624,6 @@ type UserWithPhoto struct {
 // Bigint defines model for bigint.
 type Bigint = int64
 
-// AnswerOnCallbackParams defines parameters for AnswerOnCallback.
-type AnswerOnCallbackParams struct {
-	// CallbackId Identifies a button clicked by user. Bot receives this identifier after user pressed button as part of `MessageCallbackUpdate`
-	CallbackId string `form:"callback_id" json:"callback_id"`
-}
-
-// ConstructParams defines parameters for Construct.
-type ConstructParams struct {
-	// SessionId Constructor session identifier
-	SessionId string `form:"session_id" json:"session_id"`
-}
-
 // GetChatsOpts defines optional parameters for GetChats.
 type GetChatsOpts struct {
 	// Count Number of chats requested
@@ -650,11 +673,11 @@ type GetMessagesOpts struct {
 
 // SendMessageOpts defines optional parameters for SendMessage.
 type SendMessageOpts struct {
-	// UserId Fill this parameter if you want to send message to user
-	UserId int64 `form:"user_id,omitempty" json:"user_id,omitempty"`
+	// // UserId Fill this parameter if you want to send message to user
+	// UserId int64 `form:"user_id,omitempty" json:"user_id,omitempty"`
 
-	// ChatId Fill this if you send message to chat
-	ChatId int64 `form:"chat_id,omitempty" json:"chat_id,omitempty"`
+	// // ChatId Fill this if you send message to chat
+	// ChatId int64 `form:"chat_id,omitempty" json:"chat_id,omitempty"`
 
 	// DisableLinkPreview If `false`, server will not generate media preview for links in text
 	DisableLinkPreview bool `form:"disable_link_preview,omitempty" json:"disable_link_preview,omitempty"`
@@ -694,7 +717,7 @@ type MessageLink struct {
 	// Message identifier of original message
 	Mid string `json:"mid"`
 	// Type of message link
-	Type string `json:"type"`
+	Type MessageLinkType `json:"type"`
 }
 
 // EditMessageParams defines parameters for EditMessage.
