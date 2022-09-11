@@ -38,6 +38,16 @@ const (
 	UpdateMessageChatCreated         UpdateType = "message_chat_created"
 )
 
+var AllUpdates = []UpdateType{
+	UpdateBotAdded, UpdateBotRemoved, UpdateBotStarted,
+	UpdateChatTitleChanged,
+
+	UpdateMessageCallback, UpdateMessageChatCreated, UpdateMessageConstructed, UpdateMessageConstructionRequest,
+	UpdateMessageCreated, UpdateMessageEdited, UpdateMessageRemoved,
+
+	UpdateUserAdded, UpdateUserRemoved,
+}
+
 type UpdateType string
 
 // ActionRequestBody defines model for ActionRequestBody.
@@ -272,7 +282,7 @@ type ChatPatch struct {
 type ChatStatus = interface{}
 
 // ChatType Type of chat. Dialog (one-on-one), chat or channel
-type ChatType = interface{}
+type ChatType = string
 
 // ConstructedMessageBody defines model for ConstructedMessageBody.
 type ConstructedMessageBody struct {
@@ -383,7 +393,7 @@ type Message struct {
 	Timestamp int64 `json:"timestamp"`
 
 	// Url Message public URL. Can be `null` for dialogs or non-public chats/channels
-	Url *string `json:"url"`
+	Url string `json:"url,omitempty"`
 }
 
 // MessageBody Schema representing body of message
@@ -521,23 +531,23 @@ type Subscription struct {
 	Time int64 `json:"time"`
 
 	// UpdateTypes Update types bot subscribed for
-	UpdateTypes *[]string `json:"update_types"`
+	UpdateTypes []string `json:"update_types,omitempty"`
 
 	// Url Webhook URL
-	Url     string  `json:"url"`
-	Version *string `json:"version"`
+	Url     string `json:"url"`
+	Version string `json:"version,omitempty"`
 }
 
 // SubscriptionRequestBody Request to set up WebHook subscription
 type SubscriptionRequestBody struct {
 	// UpdateTypes List of update types your bot want to receive. See `Update` object for a complete list of types
-	UpdateTypes *[]string `json:"update_types,omitempty"`
+	UpdateTypes []UpdateType `json:"update_types,omitempty"`
 
 	// Url URL of HTTP(S)-endpoint of your bot. Must starts with http(s)://
 	Url string `json:"url"`
 
 	// Version Version of API. Affects model representation
-	Version *string `json:"version,omitempty"`
+	Version string `json:"version,omitempty"`
 }
 
 // TextFormat Message text format

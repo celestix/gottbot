@@ -6,12 +6,14 @@ import (
 
 	"github.com/anonyindian/gottbot"
 	"github.com/anonyindian/gottbot/ext"
+	"github.com/anonyindian/gottbot/filters"
 )
 
 type Command struct {
 	Prefix    []rune
 	Command   string
 	Response  Callback
+	Filter    filters.MessageFilter
 	handlerID string
 }
 
@@ -21,6 +23,16 @@ func CommandHandler(command string, callback Callback) *Command {
 		Command:  command,
 		Response: callback,
 	}
+}
+
+func (c *Command) SetPrefix(prefix []rune) *Command {
+	c.Prefix = prefix
+	return c
+}
+
+func (c *Command) SetFilter(filter filters.MessageFilter) *Command {
+	c.Filter = filter
+	return c
 }
 
 func (c *Command) checkCommand(text string) bool {

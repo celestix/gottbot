@@ -428,3 +428,45 @@ func (b *Bot) GetUpdates(opts *GetUpdatesOpts) (*UpdateList, error) {
 	var v UpdateList
 	return &v, json.NewDecoder(data).Decode(&v)
 }
+
+func (b *Bot) GetSubscriptions() (*GetSubscriptionsResult, error) {
+	data, err := b.MakeRequest(http.MethodGet, "subscriptions", url.Values{}, nil)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v GetSubscriptionsResult
+	return &v, json.NewDecoder(data).Decode(&v)
+}
+
+func (b *Bot) Subscribe(body SubscriptionRequestBody) (*SimpleQueryResult, error) {
+	bs, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ConstructorAnswer: %w", err)
+	}
+	data, err := b.MakeRequest(http.MethodPost, "subscriptions", url.Values{}, bs)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v SimpleQueryResult
+	return &v, json.NewDecoder(data).Decode(&v)
+}
+
+func (b *Bot) Unsubscribe(webhookUrl string) (*SimpleQueryResult, error) {
+	u := url.Values{}
+	u.Add("url", webhookUrl)
+	data, err := b.MakeRequest(http.MethodDelete, "subscriptions", u, nil)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v SimpleQueryResult
+	return &v, json.NewDecoder(data).Decode(&v)
+}

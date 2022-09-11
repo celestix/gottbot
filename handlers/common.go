@@ -10,5 +10,5 @@ import (
 type Callback func(bot *gottbot.Bot, update *gottbot.Update) error
 
 func makeHandlerID(name, suffix string) string {
-	return fmt.Sprintf("%d_%s=%s", time.Now(), name, suffix)
+	return fmt.Sprintf("%d_%s=%s", time.Now().Unix(), name, suffix)
 }

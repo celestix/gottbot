@@ -5,17 +5,20 @@ import (
 
 	"github.com/anonyindian/gottbot"
 	"github.com/anonyindian/gottbot/ext"
+	"github.com/anonyindian/gottbot/filters"
 )
 
 type Message struct {
 	Response    Callback
+	Filter      filters.MessageFilter
 	AllowEdited bool
 	handlerID   string
 }
 
-func MessageHandler(callback Callback) *Message {
+func MessageHandler(filter filters.MessageFilter, callback Callback) *Message {
 	return &Message{
 		Response: callback,
+		Filter:   filter,
 	}
 }
 

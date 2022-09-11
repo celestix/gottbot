@@ -16,8 +16,8 @@ var (
 
 type Dispatcher interface {
 	// setUpdateChan(update chan gottbot.Update)
-	AddHandlerToGroup(group int, handler Handler)
-	AddHandler(handler Handler)
+	AddHandlerToGroup(group int, handler Handler) HandlerID
+	AddHandler(handler Handler) HandlerID
 	RemoveHandler(id HandlerID) bool
 	Run(bot *gottbot.Bot, updateChan chan *gottbot.Update)
 }
@@ -28,10 +28,11 @@ type GeneralDispatcher struct {
 	ErrorHandler  func(*gottbot.Bot, *gottbot.Update, error)
 }
 
-func NewDispatcher() *GeneralDispatcher {
+func NewDispatcher(errorHandler func(*gottbot.Bot, *gottbot.Update, error)) *GeneralDispatcher {
 	return &GeneralDispatcher{
 		handlerGroups: make([]int, 0),
 		handlerMap:    make(map[int][]Handler),
+		ErrorHandler:  errorHandler,
 	}
 }
 
@@ -69,7 +70,7 @@ func (g *GeneralDispatcher) processUpdate(bot *gottbot.Bot, update *gottbot.Upda
 	}
 }
 
-func (g *GeneralDispatcher) AddHandlerToGroup(group int, handler Handler) {
+func (g *GeneralDispatcher) AddHandlerToGroup(group int, handler Handler) HandlerID {
 	handlers, ok := g.handlerMap[group]
 	if !ok {
 		handlers = make([]Handler, 0)
@@ -78,10 +79,15 @@ func (g *GeneralDispatcher) AddHandlerToGroup(group int, handler Handler) {
 	}
 	handlers = append(handlers, handler)
 	g.handlerMap[group] = handlers
+	return handler.GetHandlerID()
 }
 
-func (g *GeneralDispatcher) AddHandler(handler Handler) {
-	g.AddHandlerToGroup(0, handler)
+func (g *GeneralDispatcher) AddHandler(handler Handler) HandlerID {
+	return g.AddHandlerToGroup(0, handler)
+}
+
+func (g *GeneralDispatcher) RemoveGroup(group int) {
+	delete(g.handlerMap, group)
 }
 
 func (g *GeneralDispatcher) RemoveHandler(id HandlerID) bool {
