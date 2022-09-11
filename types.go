@@ -1,5 +1,7 @@
 package gottbot
 
+import "encoding/json"
+
 // Defines values for ChatAdminPermission.
 const (
 	AddAdmins        ChatAdminPermission = "add_admins"
@@ -63,7 +65,95 @@ type Attachment struct {
 
 // AttachmentRequest Request to attach some data to message
 type AttachmentRequest struct {
-	Type string `json:"type"`
+	Payload Payload `json:"payload"`
+}
+
+func (a AttachmentRequest) MarshalJSON() ([]byte, error) {
+	type temp AttachmentRequest
+	v := struct {
+		Type string `json:"type"`
+		temp
+	}{
+		Type: a.Payload.GetPayloadType(),
+		temp: temp(a),
+	}
+	return json.Marshal(v)
+}
+
+func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
+	v := struct {
+		Type string `json:"type"`
+	}{}
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		return err
+	}
+	switch v.Type {
+	case "inline_keyboard":
+		t := ButtonsPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "image":
+		t := ImagePayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "video":
+		t := VideoPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "audio":
+		t := AudioPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "file":
+		t := FilePayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "contact":
+		t := ContactPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "sticker":
+		t := StickerPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "location":
+		t := LocationPayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	case "share":
+		t := SharePayload{}
+		err := json.Unmarshal(b, &t)
+		if err != nil {
+			return err
+		}
+		a.Payload = &t
+	}
+	return nil
 }
 
 // BotCommand defines model for BotCommand.
@@ -117,18 +207,18 @@ type BotPatch struct {
 	Name string `json:"name,omitempty"`
 
 	// Photo Request to set bot photo
-	Photo *PhotoAttachmentRequestPayload `json:"photo,omitempty"`
+	Photo *ImagePayload `json:"photo,omitempty"`
 
 	// Username Bot unique identifier. It can be any string 4-64 characters long containing any digit, letter or special symbols: "-" or "_". It **must** starts with a letter
 	Username string `json:"username,omitempty"`
 }
 
-// Button defines model for Button.
-type Button struct {
-	// Text Visible text of button
-	Text string `json:"text"`
-	Type string `json:"type"`
-}
+// // Button defines model for Button.
+// type Button struct {
+// 	// Text Visible text of button
+// 	Text string `json:"text"`
+// 	Type string `json:"type"`
+// }
 
 type Callback struct {
 	// Unix-time when user pressed the button
@@ -268,7 +358,7 @@ type ChatMembersList struct {
 
 // ChatPatch defines model for ChatPatch.
 type ChatPatch struct {
-	Icon *PhotoAttachmentRequestPayload `json:"icon"`
+	Icon *ImagePayload `json:"icon"`
 
 	// Notify By default, participants will be notified about change with system message in chat/channel
 	Notify *bool `json:"notify"`
@@ -399,7 +489,7 @@ type Message struct {
 // MessageBody Schema representing body of message
 type MessageBody struct {
 	// Attachments Message attachments. Could be one of `Attachment` type. See description of this schema
-	Attachments []Attachment `json:"attachments,omitempty"`
+	Attachments []AttachmentRequest `json:"attachments,omitempty"`
 
 	// Markup Message text markup. See [Formatting](#section/About/Text-formatting) section for more info
 	Markup []MarkupElement `json:"markup,omitempty"`
@@ -453,18 +543,6 @@ type NewMessageLink struct {
 
 	// Type Type of message link
 	Type MessageLinkType `json:"type"`
-}
-
-// PhotoAttachmentRequestPayload Request to attach image. All fields are mutually exclusive
-type PhotoAttachmentRequestPayload struct {
-	// Photos Tokens were obtained after uploading images
-	Photos *map[string]PhotoToken `json:"photos"`
-
-	// Token Token of any existing attachment
-	Token *string `json:"token"`
-
-	// Url Any external image URL you want to attach
-	Url *string `json:"url"`
 }
 
 // PhotoToken defines model for PhotoToken.
@@ -579,7 +657,7 @@ type UploadEndpoint struct {
 }
 
 // UploadType Type of file uploading
-type UploadType = interface{}
+type UploadType string
 
 // User defines model for User.
 type User struct {
@@ -693,7 +771,7 @@ type SendMessageOpts struct {
 	DisableLinkPreview bool `form:"disable_link_preview,omitempty" json:"disable_link_preview,omitempty"`
 
 	// Attachments Message attachments. Could be one of `Attachment` type. See description of this schema
-	Attachments []Attachment `json:"attachments"`
+	Attachments []AttachmentRequest `json:"attachments"`
 
 	// Link to Message
 	Link *MessageLink `json:"link,omitempty"`
@@ -710,7 +788,7 @@ type SendMessageBody struct {
 	Text string `json:"text,omitempty"`
 
 	// Attachments Message attachments. Could be one of `Attachment` type. See description of this schema
-	Attachments []Attachment `json:"attachments,omitempty"`
+	Attachments []AttachmentRequest `json:"attachments,omitempty"`
 
 	// Link to Message
 	Link *MessageLink `json:"link,omitempty"`
