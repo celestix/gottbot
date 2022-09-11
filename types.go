@@ -58,11 +58,6 @@ type ActionRequestBody struct {
 	Action SenderAction `json:"action"`
 }
 
-// Attachment Generic schema representing message attachment
-type Attachment struct {
-	Type string `json:"type"`
-}
-
 // AttachmentRequest Request to attach some data to message
 type AttachmentRequest struct {
 	Payload Payload `json:"payload"`
@@ -369,7 +364,7 @@ type ChatPatch struct {
 }
 
 // ChatStatus Chat status for current bot
-type ChatStatus = interface{}
+type ChatStatus = string
 
 // ChatType Type of chat. Dialog (one-on-one), chat or channel
 type ChatType = string
