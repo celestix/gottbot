@@ -444,7 +444,7 @@ func (b *Bot) GetSubscriptions() (*GetSubscriptionsResult, error) {
 func (b *Bot) Subscribe(body SubscriptionRequestBody) (*SimpleQueryResult, error) {
 	bs, err := json.Marshal(body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode ConstructorAnswer: %w", err)
+		return nil, fmt.Errorf("failed to encode SubscriptionRequestBody: %w", err)
 	}
 	data, err := b.MakeRequest(http.MethodPost, "subscriptions", url.Values{}, bs)
 	if data != nil {
