@@ -1,6 +1,8 @@
 package gottbot
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // Defines values for ChatAdminPermission.
 const (
@@ -25,29 +27,29 @@ const (
 )
 
 const (
-	UpdateMessageCreated             UpdateType = "message_created"
-	UpdateMessageRemoved             UpdateType = "message_removed"
-	UpdateMessageCallback            UpdateType = "message_callback"
-	UpdateMessageEdited              UpdateType = "message_edited"
-	UpdateBotAdded                   UpdateType = "bot_added"
-	UpdateBotRemoved                 UpdateType = "bot_removed"
-	UpdateBotStarted                 UpdateType = "bot_started"
-	UpdateUserAdded                  UpdateType = "user_added"
-	UpdateUserRemoved                UpdateType = "user_removed"
-	UpdateChatTitleChanged           UpdateType = "chat_title_changed"
-	UpdateMessageConstructionRequest UpdateType = "message_construction_request"
-	UpdateMessageConstructed         UpdateType = "message_constructed"
-	UpdateMessageChatCreated         UpdateType = "message_chat_created"
+	UpdateTypeMessageCreated             UpdateType = "message_created"
+	UpdateTypeMessageRemoved             UpdateType = "message_removed"
+	UpdateTypeMessageCallback            UpdateType = "message_callback"
+	UpdateTypeMessageEdited              UpdateType = "message_edited"
+	UpdateTypeBotAdded                   UpdateType = "bot_added"
+	UpdateTypeBotRemoved                 UpdateType = "bot_removed"
+	UpdateTypeBotStarted                 UpdateType = "bot_started"
+	UpdateTypeUserAdded                  UpdateType = "user_added"
+	UpdateTypeUserRemoved                UpdateType = "user_removed"
+	UpdateTypeChatTitleChanged           UpdateType = "chat_title_changed"
+	UpdateTypeMessageConstructionRequest UpdateType = "message_construction_request"
+	UpdateTypeMessageConstructed         UpdateType = "message_constructed"
+	UpdateTypeMessageChatCreated         UpdateType = "message_chat_created"
 )
 
 var AllUpdates = []UpdateType{
-	UpdateBotAdded, UpdateBotRemoved, UpdateBotStarted,
-	UpdateChatTitleChanged,
+	UpdateTypeBotAdded, UpdateTypeBotRemoved, UpdateTypeBotStarted,
+	UpdateTypeChatTitleChanged,
 
-	UpdateMessageCallback, UpdateMessageChatCreated, UpdateMessageConstructed, UpdateMessageConstructionRequest,
-	UpdateMessageCreated, UpdateMessageEdited, UpdateMessageRemoved,
+	UpdateTypeMessageCallback, UpdateTypeMessageChatCreated, UpdateTypeMessageConstructed, UpdateTypeMessageConstructionRequest,
+	UpdateTypeMessageCreated, UpdateTypeMessageEdited, UpdateTypeMessageRemoved,
 
-	UpdateUserAdded, UpdateUserRemoved,
+	UpdateTypeUserAdded, UpdateTypeUserRemoved,
 }
 
 type UpdateType string
@@ -626,16 +628,6 @@ type SubscriptionRequestBody struct {
 // TextFormat Message text format
 type TextFormat string
 
-// Update `Update` object represents different types of events that happened in chat. See its inheritors
-type Update struct {
-	// Timestamp Unix-time when event has occurred
-	Timestamp  int64      `json:"timestamp"`
-	UpdateType UpdateType `json:"update_type"`
-	Callback   *Callback  `json:"callback"`
-	Message    *Message   `json:"message,omitempty"`
-	UserLocale string     `json:"user_locale,omitempty"`
-}
-
 // UpdateList List of all updates in chats your bot participated in
 type UpdateList struct {
 	// Marker Pointer to the next data page
@@ -643,6 +635,148 @@ type UpdateList struct {
 
 	// Updates Page of updates
 	Updates []Update `json:"updates"`
+}
+
+func (p *UpdateList) UnmarshalJSON(b []byte) error {
+	v := struct {
+		Marker  int64             `json:"marker,omitempty"`
+		Updates []json.RawMessage `json:"updates"`
+	}{}
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		return err
+	}
+	updates := make([]Update, len(v.Updates))
+	for i, r := range v.Updates {
+		update, err := unmarshalUpdate(r)
+		if err != nil {
+			return err
+		}
+		updates[i] = *update
+	}
+	p.Updates = updates
+	return nil
+}
+
+// Update `Update` object represents different types of events that happened in chat.
+type Update struct {
+	Type                       UpdateType
+	MessageCreated             *MessageCreated
+	MessageEdited              *MessageEdited
+	MessageRemoved             *MessageRemoved
+	MessageCallback            *MessageCallback
+	BotAdded                   *BotAdded
+	BotRemoved                 *BotRemoved
+	BotStarted                 *BotStarted
+	UserAdded                  *UserAdded
+	UserRemoved                *UserRemoved
+	ChatTitleChanged           *ChatTitleChanged
+	MessageChatCreated         *MessageChatCreated
+	MessageConstructed         *MessageConstructed
+	MessageConstructionRequest *MessageConstructionRequest
+}
+
+func (u *Update) GetUpdateType() UpdateType {
+	return u.Type
+}
+
+func unmarshalUpdate(r json.RawMessage) (*Update, error) {
+	v := struct {
+		UpdateType UpdateType `json:"update_type"`
+	}{}
+	err := json.Unmarshal(r, &v)
+	if err != nil {
+		return nil, err
+	}
+	update := new(Update)
+	update.Type = v.UpdateType
+	switch v.UpdateType {
+	case UpdateTypeMessageCreated:
+		t := MessageCreated{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageCreated = &t
+	case UpdateTypeMessageCallback:
+		t := MessageCallback{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageCallback = &t
+	case UpdateTypeMessageEdited:
+		t := MessageEdited{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageEdited = &t
+	case UpdateTypeMessageRemoved:
+		t := MessageRemoved{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageRemoved = &t
+	case UpdateTypeBotAdded:
+		t := BotAdded{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.BotAdded = &t
+	case UpdateTypeBotRemoved:
+		t := BotRemoved{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.BotRemoved = &t
+	case UpdateTypeUserAdded:
+		t := UserAdded{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.UserAdded = &t
+	case UpdateTypeUserRemoved:
+		t := UserRemoved{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.UserRemoved = &t
+	case UpdateTypeChatTitleChanged:
+		t := ChatTitleChanged{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.ChatTitleChanged = &t
+	case UpdateTypeMessageChatCreated:
+		t := MessageChatCreated{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageChatCreated = &t
+	case UpdateTypeMessageConstructed:
+		t := MessageConstructed{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageConstructed = &t
+	case UpdateTypeMessageConstructionRequest:
+		t := MessageConstructionRequest{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.MessageConstructionRequest = &t
+	}
+	return update, nil
 }
 
 // UploadEndpoint Endpoint you should upload to your binaries
@@ -834,4 +968,16 @@ type GetUpdatesOpts struct {
 type GetUploadUrlParams struct {
 	// Type Uploaded file type: photo, audio, video, file
 	Type UploadType `form:"type" json:"type"`
+}
+
+type Input struct {
+	InputType string `json:"input"`
+
+	// Pressed button payload
+	Payload string `json:"payload,omitempty"`
+
+	// Messages sent by user during construction process.
+	// Typically it is single element array but sometimes it can contains multiple messages.
+	// Can be empty on initial request when user just opened constructor
+	Messages []ConstructedMessageBody `json:"messages,omitempty"`
 }

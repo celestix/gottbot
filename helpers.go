@@ -16,6 +16,9 @@ func (m *Message) Reply(bot *Bot, text string, opts *SendMessageOpts) (*SendMess
 }
 
 func (m *Message) Forward(bot *Bot, chatId int64, text string, opts *SendMessageOpts) (*SendMessageResult, error) {
+	if opts == nil {
+		opts = &SendMessageOpts{}
+	}
 	opts.Link = &MessageLink{
 		Mid:  m.Body.Mid,
 		Type: Forward,

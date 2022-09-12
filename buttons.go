@@ -9,6 +9,7 @@ import (
 type Button interface {
 	GetButtonText() string
 	GetButtonType() string
+	MarshalJSON() ([]byte, error)
 }
 
 type CallbackButton struct {

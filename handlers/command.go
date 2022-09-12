@@ -53,15 +53,15 @@ func (c *Command) checkCommand(text string) bool {
 }
 
 func (c *Command) CheckUpdate(update *gottbot.Update) bool {
-	switch update.UpdateType {
-	case gottbot.UpdateMessageCreated:
-		return c.checkCommand(update.Message.Body.Text)
+	switch update.GetUpdateType() {
+	case gottbot.UpdateTypeMessageCreated:
+		return c.checkCommand(update.MessageCreated.Message.Body.Text)
 	}
 	return false
 }
 
-func (c *Command) HandleUpdate(bot *gottbot.Bot, update *gottbot.Update) error {
-	return c.Response(bot, update)
+func (c *Command) HandleUpdate(bot *gottbot.Bot, ctx *ext.Context) error {
+	return c.Response(bot, ctx)
 }
 
 func (c *Command) GetHandlerID() ext.HandlerID {

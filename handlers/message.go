@@ -23,17 +23,17 @@ func MessageHandler(filter filters.MessageFilter, callback Callback) *Message {
 }
 
 func (m *Message) CheckUpdate(update *gottbot.Update) bool {
-	switch update.UpdateType {
-	case gottbot.UpdateMessageCreated:
+	switch update.GetUpdateType() {
+	case gottbot.UpdateTypeMessageCreated:
 		return true
-	case gottbot.UpdateMessageEdited:
+	case gottbot.UpdateTypeMessageEdited:
 		return m.AllowEdited
 	}
 	return false
 }
 
-func (m *Message) HandleUpdate(bot *gottbot.Bot, update *gottbot.Update) error {
-	return m.Response(bot, update)
+func (m *Message) HandleUpdate(bot *gottbot.Bot, ctx *ext.Context) error {
+	return m.Response(bot, ctx)
 }
 
 func (m *Message) GetHandlerID() ext.HandlerID {

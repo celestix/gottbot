@@ -25,8 +25,8 @@ func main() {
 	updater.Idle()
 }
 
-func echo(bot *gottbot.Bot, update *gottbot.Update) error {
-	msg := update.Message
+func echo(bot *gottbot.Bot, ctx *ext.Context) error {
+	msg := ctx.EffectiveMessage
 	_, err := msg.Reply(bot, msg.Body.Text, nil)
 	if err != nil {
 		log.Println("failed to send message:", err.Error())

@@ -52,7 +52,8 @@ func (g *GeneralDispatcher) processUpdate(bot *gottbot.Bot, update *gottbot.Upda
 			if !handler.CheckUpdate(update) {
 				continue
 			}
-			err := handler.HandleUpdate(bot, update)
+			ctx := NewContext(update)
+			err := handler.HandleUpdate(bot, ctx)
 			if err == nil || errors.Is(err, SkipCurrentGroup) {
 				break
 			}
