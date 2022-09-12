@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -21,6 +22,8 @@ func main() {
 	dispatcher := updater.Dispatcher
 
 	dispatcher.AddHandler(handlers.MessageHandler(filters.Message.All, echo))
+
+	fmt.Println("Started example bot with long polling...")
 
 	updater.Idle()
 }

@@ -803,7 +803,7 @@ type User struct {
 	UserId int64 `json:"user_id"`
 
 	// Username Unique public user name. Can be `null` if user is not accessible or it is not set
-	Username *string `json:"username"`
+	Username string `json:"username,omitempty"`
 }
 
 // UserIdsList defines model for UserIdsList.

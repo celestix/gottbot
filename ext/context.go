@@ -7,6 +7,7 @@ type Context struct {
 	EffectiveMessage *gottbot.Message
 	EffectiveQuery   *gottbot.Callback
 	EffectiveChatId  int64
+	Data             map[string]any
 	*gottbot.Update
 }
 
