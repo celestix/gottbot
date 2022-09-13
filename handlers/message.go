@@ -33,6 +33,9 @@ func (m *Message) CheckUpdate(update *gottbot.Update) bool {
 }
 
 func (m *Message) HandleUpdate(bot *gottbot.Bot, ctx *ext.Context) error {
+	if !m.Filter(ctx.EffectiveMessage) {
+		return ext.ContinueGroup
+	}
 	return m.Response(bot, ctx)
 }
 
