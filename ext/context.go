@@ -1,6 +1,8 @@
 package ext
 
-import "github.com/anonyindian/gottbot"
+import (
+	"github.com/anonyindian/gottbot"
+)
 
 type Context struct {
 	EffectiveUser    *gottbot.User

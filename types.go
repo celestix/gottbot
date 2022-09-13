@@ -87,55 +87,83 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 	}
 	switch v.Type {
 	case "inline_keyboard":
-		t := ButtonsPayload{}
+		t := struct {
+			Payload *ButtonsPayload `json:"payload"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		a.Payload = t.Payload
 	case "image":
-		t := ImagePayload{}
+		t := struct {
+			Payload *ImagePayload `json:"payload"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		a.Payload = t.Payload
 	case "video":
-		t := VideoPayload{}
+		t := struct {
+			Payload   *VideoPayload `json:"payload"`
+			Thumbnail *Image        `json:"thumbnail,omitempty"`
+			Duration  int64         `json:"duration,omitempty"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		t.Payload.Thumbnail = t.Thumbnail
+		t.Payload.Duration = t.Duration
+		a.Payload = t.Payload
 	case "audio":
-		t := AudioPayload{}
+		t := struct {
+			Payload *AudioPayload `json:"payload"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		a.Payload = t.Payload
 	case "file":
-		t := FilePayload{}
+		t := struct {
+			Payload  *FilePayload `json:"payload"`
+			Filename string       `json:"filename,omitempty"`
+			Size     int64        `json:"size,omitempty"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		t.Payload.Filename = t.Filename
+		t.Payload.Size = t.Size
+		a.Payload = t.Payload
 	case "contact":
-		t := ContactPayload{}
+		t := struct {
+			Payload *ContactPayload `json:"payload"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		a.Payload = t.Payload
 	case "sticker":
-		t := StickerPayload{}
+		t := struct {
+			Payload *StickerPayload `json:"payload"`
+			Width   int             `json:"width,omitempty"`
+			Height  int             `json:"height,omitempty"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		t.Payload.Width = t.Width
+		t.Payload.Height = t.Height
+		a.Payload = t.Payload
 	case "location":
+		// Well, This is weird but idk why tt bot api is sending it like that.
+		// Maybe, A bug?
 		t := LocationPayload{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
@@ -143,12 +171,14 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 		}
 		a.Payload = &t
 	case "share":
-		t := SharePayload{}
+		t := struct {
+			Payload *SharePayload `json:"payload"`
+		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
-		a.Payload = &t
+		a.Payload = t.Payload
 	}
 	return nil
 }
@@ -719,6 +749,13 @@ func unmarshalUpdate(r json.RawMessage) (*Update, error) {
 			return nil, err
 		}
 		update.MessageRemoved = &t
+	case UpdateTypeBotStarted:
+		t := BotStarted{}
+		err := json.Unmarshal(r, &t)
+		if err != nil {
+			return nil, err
+		}
+		update.BotStarted = &t
 	case UpdateTypeBotAdded:
 		t := BotAdded{}
 		err := json.Unmarshal(r, &t)

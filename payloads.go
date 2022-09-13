@@ -11,6 +11,9 @@ type Payload interface {
 
 // ImagePayload Request to attach image. All fields are mutually exclusive
 type ImagePayload struct {
+	// Photo ID
+	PhotoId int64 `json:"photo_id,omitempty"`
+
 	// Photos Tokens were obtained after uploading images
 	Photos map[string]PhotoToken `json:"photos,omitempty"`
 
@@ -27,8 +30,20 @@ func (*ImagePayload) GetPayloadType() string {
 
 // VideoPayload Request to attach video.
 type VideoPayload struct {
+	// Url of the video
+	Url string `json:"url,omitempty"`
+
 	// Token of any existing attachment
 	Token string `json:"token,omitempty"`
+
+	// Video Id
+	VideoId int64 `json:"id,omitempty"`
+
+	// Thumbnail of the video
+	Thumbnail *Image `json:"thumbnail,omitempty"`
+
+	// Duration of the video
+	Duration int64 `json:"duration,omitempty"`
 }
 
 func (*VideoPayload) GetPayloadType() string {
@@ -37,8 +52,14 @@ func (*VideoPayload) GetPayloadType() string {
 
 // AudioPayload Request to attach audio.
 type AudioPayload struct {
+	// Url of the video
+	Url string `json:"url,omitempty"`
+
 	// Token of any existing attachment
 	Token string `json:"token,omitempty"`
+
+	// Audio Id
+	AudioId int64 `json:"id,omitempty"`
 }
 
 func (*AudioPayload) GetPayloadType() string {
@@ -47,8 +68,17 @@ func (*AudioPayload) GetPayloadType() string {
 
 // FilePayload Request to attach file.
 type FilePayload struct {
+	// Url of file
+	Url string `json:"url,omitempty"`
+
 	// Token of any existing attachment
 	Token string `json:"token,omitempty"`
+
+	// File id
+	FileId int64 `json:"fileId,omitempty"`
+
+	Filename string `json:"filename,omitempty"`
+	Size     int64  `json:"size,omitempty"`
 }
 
 func (*FilePayload) GetPayloadType() string {
@@ -57,6 +87,9 @@ func (*FilePayload) GetPayloadType() string {
 
 // ContactPayload Request to attach contact.
 type ContactPayload struct {
+	// TamTam user info of the contact
+	TamInfo *User `json:"tam_info,omitempty"`
+
 	// Contact Name
 	Name string `json:"name,omitempty"`
 
@@ -78,6 +111,13 @@ func (*ContactPayload) GetPayloadType() string {
 type StickerPayload struct {
 	// Sticker code
 	Code string `json:"code,omitempty"`
+
+	// Url Any external sticker URL you want to attach
+	Url string `json:"url,omitempty"`
+
+	Width int `json:"width,omitempty"`
+
+	Height int `json:"height,omitempty"`
 }
 
 func (*StickerPayload) GetPayloadType() string {
@@ -87,9 +127,9 @@ func (*StickerPayload) GetPayloadType() string {
 // LocationPayload Request to attach location.
 type LocationPayload struct {
 	// latitude
-	Latitude float64 `json:"latitude"`
+	Latitude float64 `json:"latitude,omitempty"`
 	// longitude
-	Longitude float64 `json:"longitude"`
+	Longitude float64 `json:"longitude,omitempty"`
 }
 
 func (*LocationPayload) GetPayloadType() string {
