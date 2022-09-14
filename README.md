@@ -17,7 +17,7 @@ You can use this package to create bots easily in golang, for any futher help yo
 You can download the library with the help of standard `go get` command.
 
 ```bash
-go get github.com/anonyindian/gotgproto
+go get github.com/anonyindian/gottbot
 ```
 
 ## Usage

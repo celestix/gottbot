@@ -9,16 +9,21 @@ import (
 	"github.com/anonyindian/gottbot"
 )
 
+// Updater fetches the updates from bot api
+//
+// Either by StartWebhook or by StartPolling
 type Updater struct {
 	Dispatcher Dispatcher
 	update     chan *gottbot.Update
 }
 
+// Optional fields for the NewUpdater
 type UpdaterOpts struct {
 	Dispatcher   Dispatcher
 	ErrorHandler func(*gottbot.Bot, *gottbot.Update, error)
 }
 
+// NewUpdater creates a new Updater.
 func NewUpdater(opts *UpdaterOpts) *Updater {
 	if opts == nil {
 		opts = new(UpdaterOpts)

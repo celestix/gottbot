@@ -22,12 +22,14 @@ type Dispatcher interface {
 	Run(bot *gottbot.Bot, updateChan chan *gottbot.Update)
 }
 
+// GeneralDispatcher is the default dispatcher.
 type GeneralDispatcher struct {
 	handlerGroups []int
 	handlerMap    map[int][]Handler
 	ErrorHandler  func(*gottbot.Bot, *gottbot.Update, error)
 }
 
+// NewDispatcher creates a new general dispatcher.
 func NewDispatcher(errorHandler func(*gottbot.Bot, *gottbot.Update, error)) *GeneralDispatcher {
 	return &GeneralDispatcher{
 		handlerGroups: make([]int, 0),
@@ -71,6 +73,7 @@ func (g *GeneralDispatcher) processUpdate(bot *gottbot.Bot, update *gottbot.Upda
 	}
 }
 
+// AddHandlerToGroup appends the provided handler to the provided handler group.
 func (g *GeneralDispatcher) AddHandlerToGroup(group int, handler Handler) HandlerID {
 	handlers, ok := g.handlerMap[group]
 	if !ok {
@@ -83,14 +86,17 @@ func (g *GeneralDispatcher) AddHandlerToGroup(group int, handler Handler) Handle
 	return handler.GetHandlerID()
 }
 
+// AddHandler appends the provided handler to the handler group 0.
 func (g *GeneralDispatcher) AddHandler(handler Handler) HandlerID {
 	return g.AddHandlerToGroup(0, handler)
 }
 
+// RemoveGroup removes the whole handler group.
 func (g *GeneralDispatcher) RemoveGroup(group int) {
 	delete(g.handlerMap, group)
 }
 
+// RemoveHandler removes the handler from any further service.
 func (g *GeneralDispatcher) RemoveHandler(id HandlerID) bool {
 	for group, handlers := range g.handlerMap {
 		for i, handler := range handlers {

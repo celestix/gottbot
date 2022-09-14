@@ -1,8 +1,8 @@
 package gottbot
 
-// type update interface {
-// 	GetUpdateType() UpdateType
-// }
+//	type update interface {
+//		GetUpdateType() UpdateType
+//	}
 
 type MessageCallback struct {
 	// Timestamp Unix-time when event has occurred

@@ -4,6 +4,7 @@ import (
 	"github.com/anonyindian/gottbot"
 )
 
+// Context contains the important data of the current update.
 type Context struct {
 	EffectiveUser    *gottbot.User
 	EffectiveMessage *gottbot.Message
