@@ -44,6 +44,12 @@ type VideoPayload struct {
 
 	// Duration of the video
 	Duration int64 `json:"duration,omitempty"`
+
+	// Sticker width
+	Width int `json:"width,omitempty"`
+
+	// Sticker height
+	Height int `json:"height,omitempty"`
 }
 
 func (*VideoPayload) GetPayloadType() string {
@@ -77,8 +83,11 @@ type FilePayload struct {
 	// File id
 	FileId int64 `json:"fileId,omitempty"`
 
+	// File name
 	Filename string `json:"filename,omitempty"`
-	Size     int64  `json:"size,omitempty"`
+
+	// File size in bytes
+	Size int64 `json:"size,omitempty"`
 }
 
 func (*FilePayload) GetPayloadType() string {
@@ -90,14 +99,14 @@ type ContactPayload struct {
 	// TamTam user info of the contact
 	TamInfo *User `json:"tam_info,omitempty"`
 
+	// Full information about contact in VCF format
+	VCFInfo string `json:"vcf_info,omitempty"`
+
 	// Contact Name
 	Name string `json:"name,omitempty"`
 
 	// Contact identifier if it is registered TamTam user
 	ContactId int64 `json:"contact_id,omitempty"`
-
-	// Full information about contact in VCF format
-	VCFInfo string `json:"vcf_info,omitempty"`
 
 	// Contact phone in VCF format
 	VCFPhone string `json:"vcf_phone,omitempty"`
@@ -115,8 +124,10 @@ type StickerPayload struct {
 	// Url Any external sticker URL you want to attach
 	Url string `json:"url,omitempty"`
 
+	// Sticker width
 	Width int `json:"width,omitempty"`
 
+	// Sticker height
 	Height int `json:"height,omitempty"`
 }
 
@@ -143,6 +154,15 @@ type SharePayload struct {
 
 	// URL attached to message as media preview
 	Url string `json:"url,omitempty"`
+
+	// Link Preview Title
+	Title string `json:"title,omitempty"`
+
+	// Link Preview Description
+	Description string `json:"description,omitempty"`
+
+	// Link Preview Image Url
+	ImageUrl string `json:"image_url,omitempty"`
 }
 
 func (*SharePayload) GetPayloadType() string {

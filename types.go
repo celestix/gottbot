@@ -4,6 +4,13 @@ import (
 	"encoding/json"
 )
 
+const (
+	UploadTypeImage UploadType = "image"
+	UploadTypeVideo UploadType = "video"
+	UploadTypeAudio UploadType = "audio"
+	UploadTypeFile  UploadType = "file"
+)
+
 // Defines values for ChatAdminPermission.
 const (
 	AddAdmins        ChatAdminPermission = "add_admins"
@@ -109,6 +116,8 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 			Payload   *VideoPayload `json:"payload"`
 			Thumbnail *Image        `json:"thumbnail,omitempty"`
 			Duration  int64         `json:"duration,omitempty"`
+			Width     int           `json:"width,omitempty"`
+			Height    int           `json:"height,omitempty"`
 		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
@@ -116,6 +125,8 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 		}
 		t.Payload.Thumbnail = t.Thumbnail
 		t.Payload.Duration = t.Duration
+		t.Payload.Width = t.Width
+		t.Payload.Height = t.Height
 		a.Payload = t.Payload
 	case "audio":
 		t := struct {
@@ -162,8 +173,6 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 		t.Payload.Height = t.Height
 		a.Payload = t.Payload
 	case "location":
-		// Well, This is weird but idk why tt bot api is sending it like that.
-		// Maybe, A bug?
 		t := LocationPayload{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
@@ -172,12 +181,18 @@ func (a *AttachmentRequest) UnmarshalJSON(b []byte) error {
 		a.Payload = &t
 	case "share":
 		t := struct {
-			Payload *SharePayload `json:"payload"`
+			Payload     *SharePayload `json:"payload"`
+			Title       string        `json:"title,omitempty"`
+			Description string        `json:"description,omitempty"`
+			ImageUrl    string        `json:"image_url,omitempty"`
 		}{}
 		err := json.Unmarshal(b, &t)
 		if err != nil {
 			return err
 		}
+		t.Payload.Title = t.Title
+		t.Payload.Description = t.Description
+		t.Payload.ImageUrl = t.ImageUrl
 		a.Payload = t.Payload
 	}
 	return nil

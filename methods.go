@@ -1,8 +1,11 @@
 package gottbot
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -469,4 +472,76 @@ func (b *Bot) Unsubscribe(webhookUrl string) (*SimpleQueryResult, error) {
 	}
 	var v SimpleQueryResult
 	return &v, json.NewDecoder(data).Decode(&v)
+}
+
+func (b *Bot) getUploadUrl(uploadType UploadType) (*UploadEndpoint, error) {
+	u := url.Values{}
+	u.Add("type", string(uploadType))
+	data, err := b.MakeRequest(http.MethodPost, "uploads", u, nil)
+	if data != nil {
+		defer data.Close()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var v UploadEndpoint
+	return &v, json.NewDecoder(data).Decode(&v)
+}
+
+type FileInfo struct {
+	Name string
+	File io.Reader
+}
+
+func (b *Bot) Upload(uploadType UploadType, fileInfo *FileInfo) (Payload, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, err := writer.CreateFormFile(string(uploadType), fileInfo.Name)
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, fileInfo.File)
+	if err != nil {
+		return nil, err
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint, err := b.getUploadUrl(uploadType)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, endpoint.Url, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	switch uploadType {
+	case UploadTypeFile:
+		v := FilePayload{}
+		return &v, json.NewDecoder(resp.Body).Decode(&v)
+	case UploadTypeImage:
+		v := ImagePayload{}
+		return &v, json.NewDecoder(resp.Body).Decode(&v)
+	case UploadTypeVideo:
+		v := VideoPayload{}
+		return &v, json.NewDecoder(resp.Body).Decode(&v)
+	case UploadTypeAudio:
+		v := AudioPayload{}
+		return &v, json.NewDecoder(resp.Body).Decode(&v)
+	default:
+		return nil, fmt.Errorf("failed to upload: Unknown UploadType: %s", uploadType)
+	}
 }
