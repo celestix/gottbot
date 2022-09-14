@@ -11,6 +11,9 @@ import (
 	"strconv"
 )
 
+// Returns info about current bot.
+// Current bot can be identified by access token.
+// Method returns bot identifier, name and avatar (if any)
 func (b *Bot) GetInfo() (*BotInfo, error) {
 	data, err := b.MakeRequest(http.MethodGet, "me", url.Values{}, nil)
 	if data != nil {
@@ -23,6 +26,8 @@ func (b *Bot) GetInfo() (*BotInfo, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Edits current bot info. Fill only the fields you want to update.
+// All remaining fields will stay untouched
 func (b *Bot) PatchInfo(patch BotPatch) (*BotInfo, error) {
 	bs, err := json.Marshal(patch)
 	if err != nil {
@@ -39,6 +44,8 @@ func (b *Bot) PatchInfo(patch BotPatch) (*BotInfo, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns information about chats that bot participated in:
+// a result list and marker points to the next page
 func (b *Bot) GetChats(opts *GetChatsOpts) (*ChatList, error) {
 	if opts == nil {
 		opts = &GetChatsOpts{}
@@ -61,6 +68,7 @@ func (b *Bot) GetChats(opts *GetChatsOpts) (*ChatList, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns chat/channel information by its public link or dialog with user by username
 func (b *Bot) GetChatByLink(link string) (*Chat, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("chats/%s", link), url.Values{}, nil)
 	if data != nil {
@@ -73,6 +81,7 @@ func (b *Bot) GetChatByLink(link string) (*Chat, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns info about chat.
 func (b *Bot) GetChat(chatId int64) (*Chat, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("chats/%d", chatId), url.Values{}, nil)
 	if data != nil {
@@ -85,6 +94,7 @@ func (b *Bot) GetChat(chatId int64) (*Chat, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Edits chat info: title, icon, etc…
 func (b *Bot) EditChat(chatId int64, patch ChatPatch) (*Chat, error) {
 	bs, err := json.Marshal(patch)
 	if err != nil {
@@ -101,6 +111,7 @@ func (b *Bot) EditChat(chatId int64, patch ChatPatch) (*Chat, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Send bot action to chat.
 func (b *Bot) SendAction(chatId int64, action SenderAction) (*SimpleQueryResult, error) {
 	data, err := b.MakeRequest(http.MethodPost, fmt.Sprintf("chats/%d/actions", chatId), url.Values{}, []byte(action))
 	if data != nil {
@@ -113,6 +124,7 @@ func (b *Bot) SendAction(chatId int64, action SenderAction) (*SimpleQueryResult,
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Get pinned message in chat or channel.
 func (b *Bot) GetPinnedMessage(chatId int64) (*GetPinnedMessageResult, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("chats/%d/pin", chatId), url.Values{}, nil)
 	if data != nil {
@@ -125,6 +137,7 @@ func (b *Bot) GetPinnedMessage(chatId int64) (*GetPinnedMessageResult, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Pins message in chat or channel.
 func (b *Bot) PinMessage(chatId int64, body PinMessageBody) (*SimpleQueryResult, error) {
 	bs, err := json.Marshal(body)
 	if err != nil {
@@ -141,6 +154,7 @@ func (b *Bot) PinMessage(chatId int64, body PinMessageBody) (*SimpleQueryResult,
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Unpins message in chat or channel.
 func (b *Bot) UnpinMessage(chatId int64) (*SimpleQueryResult, error) {
 	data, err := b.MakeRequest(http.MethodDelete, fmt.Sprintf("chats/%d/pin", chatId), url.Values{}, nil)
 	if data != nil {
@@ -153,6 +167,7 @@ func (b *Bot) UnpinMessage(chatId int64) (*SimpleQueryResult, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns chat membership info for current bot
 func (b *Bot) GetChatMembership(chatId int64) (*ChatMember, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("chats/%d/members/me", chatId), url.Values{}, nil)
 	if data != nil {
@@ -165,6 +180,7 @@ func (b *Bot) GetChatMembership(chatId int64) (*ChatMember, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Removes bot from chat members.
 func (b *Bot) LeaveChat(chatId int64) (*SimpleQueryResult, error) {
 	data, err := b.MakeRequest(http.MethodDelete, fmt.Sprintf("chats/%d/members/me", chatId), url.Values{}, nil)
 	if data != nil {
@@ -177,6 +193,7 @@ func (b *Bot) LeaveChat(chatId int64) (*SimpleQueryResult, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns all chat administrators. Bot must be administrator in requested chat.
 func (b *Bot) GetChatAdmins(chatId int64) (*ChatMembersList, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("chats/%d/members/admins", chatId), url.Values{}, nil)
 	if data != nil {
@@ -189,6 +206,7 @@ func (b *Bot) GetChatAdmins(chatId int64) (*ChatMembersList, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns users participated in chat.
 func (b *Bot) GetChatMembers(chatId int64, opts *GetChatMembersOpts) (*ChatMembersList, error) {
 	if opts == nil {
 		opts = &GetChatMembersOpts{}
@@ -218,6 +236,7 @@ func (b *Bot) GetChatMembers(chatId int64, opts *GetChatMembersOpts) (*ChatMembe
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Adds members to chat. Additional permissions may require.
 func (b *Bot) AddMembers(chatId int64, userIds []int64) (*SimpleQueryResult, error) {
 	bs, err := json.Marshal(userIds)
 	if err != nil {
@@ -234,6 +253,7 @@ func (b *Bot) AddMembers(chatId int64, userIds []int64) (*SimpleQueryResult, err
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Removes member from chat. Additional permissions may require.
 func (b *Bot) RemoveMember(chatId int64, userId int64, block bool) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("user_id", strconv.FormatInt(userId, 10))
@@ -249,6 +269,10 @@ func (b *Bot) RemoveMember(chatId int64, userId int64, block bool) (*SimpleQuery
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns messages in chat: result page and marker referencing to the next page.
+//
+// Messages traversed in reverse direction so the latest message in chat will be first in result array.
+// Therefore if you use from and to parameters, to must be less than from
 func (b *Bot) GetMessages(opts *GetMessagesOpts) (*MessageList, error) {
 	if opts == nil {
 		opts = &GetMessagesOpts{}
@@ -284,6 +308,13 @@ func (b *Bot) GetMessages(opts *GetMessagesOpts) (*MessageList, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Sends a message to a chat. As a result for this method new message identifier returns.
+//
+// Important notice:
+// It may take time for the server to process your file (audio/video or any binary).
+// While a file is not processed you can't attach it.
+// It means the last step will fail with 400 error.
+// Try to send a message again until you'll get a successful result.
 func (b *Bot) SendMessage(chatId int64, text string, opts *SendMessageOpts) (*SendMessageResult, error) {
 	if opts == nil {
 		opts = &SendMessageOpts{}
@@ -321,6 +352,9 @@ func (b *Bot) SendMessage(chatId int64, text string, opts *SendMessageOpts) (*Se
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Updated message should be sent as NewMessageBody in a request body.
+// In case attachments field is null, the current message attachments won’t be changed.
+// In case of sending an empty list in this field, all attachments will be deleted.
 func (b *Bot) EditMessage(messageId string, body NewMessageBody) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("message_id", messageId)
@@ -339,6 +373,7 @@ func (b *Bot) EditMessage(messageId string, body NewMessageBody) (*SimpleQueryRe
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Deletes message in a dialog or in a chat if bot has permission to delete messages.
 func (b *Bot) DeleteMessage(messageId string) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("message_id", messageId)
@@ -353,6 +388,7 @@ func (b *Bot) DeleteMessage(messageId string) (*SimpleQueryResult, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Returns single message by its identifier.
 func (b *Bot) GetMessage(messageId string) (*Message, error) {
 	data, err := b.MakeRequest(http.MethodGet, fmt.Sprintf("messages/%s", messageId), url.Values{}, nil)
 	if data != nil {
@@ -365,6 +401,8 @@ func (b *Bot) GetMessage(messageId string) (*Message, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// This method should be called to send an answer after a user has clicked the button.
+// The answer may be an updated message or/and a one-time user notification.
 func (b *Bot) AnswerOnCallback(callbackId string, body CallbackAnswer) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("callback_id", callbackId)
@@ -383,6 +421,8 @@ func (b *Bot) AnswerOnCallback(callbackId string, body CallbackAnswer) (*SimpleQ
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Sends answer on construction request.
+// Answer can contain any prepared message and/or keyboard to help user interact with bot.
 func (b *Bot) ConstructMessage(sessionId string, body ConstructorAnswer) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("session_id", sessionId)
@@ -401,6 +441,13 @@ func (b *Bot) ConstructMessage(sessionId string, body ConstructorAnswer) (*Simpl
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// You can use this method for getting updates in case your bot is not subscribed to WebHook.
+// The method is based on long polling.
+//
+// Every update has its own sequence number. marker property in response points to the next upcoming update.
+//
+// All previous updates are considered as committed after passing marker parameter.
+// If marker parameter is not passed, your bot will get all updates happened after the last commitment.
 func (b *Bot) GetUpdates(opts *GetUpdatesOpts) (*UpdateList, error) {
 	u := url.Values{}
 	if opts != nil {
@@ -432,6 +479,7 @@ func (b *Bot) GetUpdates(opts *GetUpdatesOpts) (*UpdateList, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// In case your bot gets data via WebHook, the method returns list of all subscriptions
 func (b *Bot) GetSubscriptions() (*GetSubscriptionsResult, error) {
 	data, err := b.MakeRequest(http.MethodGet, "subscriptions", url.Values{}, nil)
 	if data != nil {
@@ -444,6 +492,9 @@ func (b *Bot) GetSubscriptions() (*GetSubscriptionsResult, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Subscribes bot to receive updates via WebHook. After calling this method, the bot will receive notifications about new events in chat rooms at the specified URL.
+//
+// Your server must be listening on one of the following ports: 80, 8080, 443, 8443, 16384-32383
 func (b *Bot) Subscribe(body SubscriptionRequestBody) (*SimpleQueryResult, error) {
 	bs, err := json.Marshal(body)
 	if err != nil {
@@ -460,6 +511,9 @@ func (b *Bot) Subscribe(body SubscriptionRequestBody) (*SimpleQueryResult, error
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// Unsubscribes bot from receiving updates via WebHook.
+// After calling the method, the bot stops receiving notifications about new events.
+// Notification via the long-poll API becomes available for the bot
 func (b *Bot) Unsubscribe(webhookUrl string) (*SimpleQueryResult, error) {
 	u := url.Values{}
 	u.Add("url", webhookUrl)
@@ -488,11 +542,15 @@ func (b *Bot) getUploadUrl(uploadType UploadType) (*UploadEndpoint, error) {
 	return &v, json.NewDecoder(data).Decode(&v)
 }
 
+// FileInfo is the struct used to deliver the information of a file to bot.Upload
 type FileInfo struct {
+	// Name of the file
 	Name string
+	// File Reader
 	File io.Reader
 }
 
+// Returns the URL for the subsequent file upload.
 func (b *Bot) Upload(uploadType UploadType, fileInfo *FileInfo) (Payload, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
